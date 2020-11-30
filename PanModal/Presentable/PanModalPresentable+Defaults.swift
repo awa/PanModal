@@ -32,11 +32,11 @@ public extension PanModalPresentable where Self: UIViewController {
     }
 
     var cornerRadius: CGFloat {
-        return 8.0
+        return 4.0
     }
 
     var springDamping: CGFloat {
-        return 0.8
+        return 1.0
     }
 
     var transitionDuration: Double {
@@ -48,7 +48,7 @@ public extension PanModalPresentable where Self: UIViewController {
     }
 
     var panModalBackgroundColor: UIColor {
-        return UIColor.black.withAlphaComponent(0.7)
+        return UIColor.black.withAlphaComponent(0.6)
     }
 
     var dragIndicatorBackgroundColor: UIColor {
@@ -94,7 +94,7 @@ public extension PanModalPresentable where Self: UIViewController {
     }
 
     var isHapticFeedbackEnabled: Bool {
-        return true
+        return false
     }
 
     var shouldRoundTopCorners: Bool {
@@ -102,7 +102,7 @@ public extension PanModalPresentable where Self: UIViewController {
     }
 
     var showDragIndicator: Bool {
-        return shouldRoundTopCorners
+        return false
     }
 
     func shouldRespond(to panModalGestureRecognizer: UIPanGestureRecognizer) -> Bool {
