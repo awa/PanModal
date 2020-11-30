@@ -60,6 +60,14 @@ public extension PanModalPresentable where Self: UIViewController {
         return UIEdgeInsets(top: CGFloat(top), left: 0, bottom: bottomLayoutOffset, right: 0)
     }
 
+    var presentingViewScale: CGFloat {
+        return 0.93
+    }
+
+    var shouldScalePresentingView: Bool {
+        return true
+    }
+
     var anchorModalToLongForm: Bool {
         return true
     }

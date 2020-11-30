@@ -48,7 +48,7 @@ public protocol PanModalPresentable: AnyObject {
     /**
      The height of the pan modal container view
      when in the longForm presentation state.
-     
+
      This value is capped to .max, if provided value exceeds the space available.
 
      Default value is .max.
@@ -109,6 +109,20 @@ public protocol PanModalPresentable: AnyObject {
      - Note: Use `panModalSetNeedsLayoutUpdate()` when updating insets.
      */
     var scrollIndicatorInsets: UIEdgeInsets { get }
+
+    /**
+     The presentingViewController view scale
+
+     Default value is 0.9.
+     */
+    var presentingViewScale: CGFloat { get }
+
+    /**
+     A flag to determine if the presentingViewController view should be scaled.
+
+     Default value is false.
+     */
+    var shouldScalePresentingView: Bool { get }
 
     /**
      A flag to determine if scrolling should be limited to the longFormHeight.
@@ -175,7 +189,7 @@ public protocol PanModalPresentable: AnyObject {
 
     /**
      Asks the delegate if the pan modal should respond to the pan modal gesture recognizer.
-     
+
      Return false to disable movement on the pan modal but maintain gestures on the presented view.
 
      Default value is true.

@@ -33,6 +33,20 @@ open class PanModalPresentationController: UIPresentationController {
         case longForm
     }
 
+    enum PresentingViewState {
+        case max
+        case off
+        case percent(CGFloat)
+
+        var progress: CGFloat {
+            switch self {
+            case .max: return 1.0
+            case .off: return 0.0
+            case .percent(let percent): return percent
+            }
+        }
+    }
+
     /**
      Constants
      */
@@ -40,6 +54,7 @@ open class PanModalPresentationController: UIPresentationController {
         static let indicatorYOffset = CGFloat(8.0)
         static let snapMovementSensitivity = CGFloat(0.7)
         static let dragIndicatorSize = CGSize(width: 36.0, height: 5.0)
+        static let presentingViewCornerRadius = CGFloat(8.0)
     }
 
     // MARK: - Properties
@@ -183,12 +198,19 @@ open class PanModalPresentationController: UIPresentationController {
 
         guard let coordinator = presentedViewController.transitionCoordinator else {
             backgroundView.dimState = .max
+            adjustPresentingViewFrame(state: .max)
             return
+        }
+
+        if presentable?.shouldScalePresentingView == true {
+            // For cornerRadius
+            presentingViewControllers.forEach({ $0.view.clipsToBounds = true })
         }
 
         coordinator.animate(alongsideTransition: { [weak self] _ in
             self?.backgroundView.dimState = .max
             self?.presentedViewController.setNeedsStatusBarAppearanceUpdate()
+            self?.adjustPresentingViewFrame(state: .max)
         })
     }
 
@@ -203,6 +225,7 @@ open class PanModalPresentationController: UIPresentationController {
 
         guard let coordinator = presentedViewController.transitionCoordinator else {
             backgroundView.dimState = .off
+            adjustPresentingViewFrame(state: .off)
             return
         }
 
@@ -214,6 +237,7 @@ open class PanModalPresentationController: UIPresentationController {
             self?.dragIndicatorView.alpha = 0.0
             self?.backgroundView.dimState = .off
             self?.presentingViewController.setNeedsStatusBarAppearanceUpdate()
+            self?.adjustPresentingViewFrame(state: .off)
         })
     }
 
@@ -325,6 +349,16 @@ private extension PanModalPresentationController {
         return false
     }
 
+    var presentingViewControllers: [UIViewController] {
+        var presentingViewControllers: [UIViewController] = []
+        var presentingViewController: UIViewController? = self.presentingViewController
+        while let viewController = presentingViewController {
+            presentingViewControllers.append(viewController)
+            presentingViewController = viewController.presentingViewController
+        }
+        return presentingViewControllers
+    }
+
     /**
      Adds the presented view to the given container view
      & configures the view elements such as drag indicator, rounded corners
@@ -379,6 +413,18 @@ private extension PanModalPresentationController {
         }
         panContainerView.frame.origin.x = frame.origin.x
         presentedViewController.view.frame = CGRect(origin: .zero, size: adjustedSize)
+    }
+
+    func adjustPresentingViewFrame(state: PresentingViewState) {
+        if presentable?.shouldScalePresentingView == true, let presentingViewScale = presentable?.presentingViewScale {
+            // Scale all presenting view controllers
+            let scale = 1 - state.progress * (1 - presentingViewScale)
+            let cornerRadius = state.progress * Constants.presentingViewCornerRadius
+            presentingViewControllers.forEach({
+                $0.view.layer.transform = CATransform3DMakeScale(scale, scale, 1)
+                $0.view.layer.cornerRadius = cornerRadius
+            })
+        }
     }
 
     /**
@@ -656,6 +702,7 @@ private extension PanModalPresentationController {
 
         guard presentedView.frame.origin.y > shortFormYPosition else {
             backgroundView.dimState = .max
+            adjustPresentingViewFrame(state: .max)
             return
         }
 
@@ -665,7 +712,9 @@ private extension PanModalPresentationController {
          Once presentedView is translated below shortForm, calculate yPos relative to bottom of screen
          and apply percentage to backgroundView alpha
          */
-        backgroundView.dimState = .percent(1.0 - (yDisplacementFromShortForm / presentedView.frame.height))
+        let progress: CGFloat = 1.0 - (yDisplacementFromShortForm / presentedView.frame.height)
+        backgroundView.dimState = .percent(progress)
+        adjustPresentingViewFrame(state: .percent(progress))
     }
 
     /**
