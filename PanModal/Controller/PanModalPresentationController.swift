@@ -324,6 +324,10 @@ public extension PanModalPresentationController {
      pan modal presentable value changes after the initial presentation
      */
     func setNeedsLayoutUpdate() {
+        
+        if let scrollView = presentable?.panScrollable {
+            trackScrolling(scrollView)
+        }
         configureViewLayout()
         adjustPresentedViewFrame()
         observe(scrollView: presentable?.panScrollable)
@@ -813,7 +817,7 @@ private extension PanModalPresentationController {
     }
 
     /**
-     As the user scrolls, track & save the scroll view y offset.
+     As the user scrolls or screen transition, track & save the scroll view y offset.
      This helps halt scrolling when we want to hold the scroll view in place.
      */
     func trackScrolling(_ scrollView: UIScrollView) {
