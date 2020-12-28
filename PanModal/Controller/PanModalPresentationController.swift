@@ -493,11 +493,6 @@ private extension PanModalPresentationController {
             !scrollView.isScrolling
             else { return }
 
-        /**
-         Disable vertical scroll indicator until we start to scroll
-         to avoid visual bugs
-         */
-        scrollView.showsVerticalScrollIndicator = false
         scrollView.scrollIndicatorInsets = presentable?.scrollIndicatorInsets ?? .zero
 
         /**
@@ -813,7 +808,6 @@ private extension PanModalPresentationController {
      */
     func haltScrolling(_ scrollView: UIScrollView) {
         scrollView.setContentOffset(CGPoint(x: 0, y: scrollViewYOffset), animated: false)
-        scrollView.showsVerticalScrollIndicator = false
     }
 
     /**
@@ -822,7 +816,6 @@ private extension PanModalPresentationController {
      */
     func trackScrolling(_ scrollView: UIScrollView) {
         scrollViewYOffset = max(scrollView.contentOffset.y, -scrollView.contentInset.top)
-        scrollView.showsVerticalScrollIndicator = true
     }
 
     /**
@@ -860,8 +853,6 @@ private extension PanModalPresentationController {
             scrollViewYOffset = 0
             snap(toYPosition: longFormYPosition)
         }
-
-        scrollView.showsVerticalScrollIndicator = false
     }
 }
 
